@@ -1,7 +1,9 @@
-import Image from "next/image";
+import FirebaseWrapper from "@/component/home/firebaseWrapper";
 
 export default function Home() {
+  
+
   return (
-    <div>haha</div>
+    <FirebaseWrapper/>
   );
 }
