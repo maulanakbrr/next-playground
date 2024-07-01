@@ -1,5 +1,10 @@
-import { collection, addDoc, getDocs, DocumentData, QuerySnapshot } from 'firebase/firestore';
+import { collection, addDoc, getDocs, DocumentData, QuerySnapshot, query, where, orderBy, startAt } from 'firebase/firestore';
 import { db } from '../firebase';
+
+interface TableSearch {
+  searchValue: string | undefined
+  category: string | undefined
+}
 
 export const addUser = async (name: string, email: string, service: string, phoneNo: string): Promise<void> => {
   try {
@@ -28,3 +33,23 @@ export const fetchUsers = async (): Promise<DocumentData[]> => {
     return [];
   }
 };
+
+export const fetchUsersByQuery = async (value: TableSearch): Promise<DocumentData[]> => {
+  const { searchValue, category } = value
+  const usersRef = collection(db, 'users')
+  // const q =category ?  query(usersRef, where(category, 'array-contains', searchValue)) : usersRef 
+  const q =category ?  query(usersRef, orderBy(category), startAt(searchValue)) : usersRef 
+  
+  try {
+    const querySnapshot: QuerySnapshot<DocumentData> = await getDocs(q);
+    const users: DocumentData[] = [];
+    querySnapshot.forEach((doc) => {
+      users.push({ id: doc.id, ...doc.data() });
+    });
+    return users;
+  } catch (e) {
+    console.error('Error fetching documents: ', e);
+    return [];
+  }
+};
+

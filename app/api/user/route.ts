@@ -1,12 +1,17 @@
-import { addUser, fetchUsers } from "@/utils/db/users"
-import { NextRequest, NextResponse } from "next/server"
+import { addUser, fetchUsers, fetchUsersByQuery} from "@/utils/db/users"
+import { NextRequest } from "next/server"
 
-export async function GET() {
-    const res = await fetchUsers()
-    return NextResponse.json({res})
+export async function GET(request: NextRequest) {
+    const searchParams = request.nextUrl.searchParams
+    const category = searchParams.get('category')
+    const searchValue = searchParams.get('searchValue')
+    // console.log('REQ:: ', query)
+
+    const res = category && searchValue ? await fetchUsersByQuery({category, searchValue}) : await fetchUsers()
+    return Response.json({res})
 }
 
-export async function POST(request: NextRequest) {
+export async function POST(request: Request) {
     try {
         const data = await request.json()
         const { name, email, service, phoneNo } = data
@@ -14,6 +19,6 @@ export async function POST(request: NextRequest) {
         return new Response('Success!', { status: 200 })
     } catch(err) { 
         return new Response('Error!', { status: 500 })
-    }
+    } 
     
 }
