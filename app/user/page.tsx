@@ -25,8 +25,8 @@ const UserPage:React.FC = () => {
   
   return (
     <div className='flex my-4'>
-      <div className='w-1/2'>UserPage</div>
-      <div className='w-1/2'>
+      <div className='w-1/3'>UserPage</div>
+      <div className='w-2/3'>
         <div>
           <Search filterOption={filterOption}/>
           <Table

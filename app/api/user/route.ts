@@ -5,7 +5,7 @@ export async function GET(request: NextRequest) {
     const searchParams = request.nextUrl.searchParams
     const category = searchParams.get('category')
     const searchValue = searchParams.get('searchValue')
-    // console.log('REQ:: ', query)
+    
 
     const res = category && searchValue ? await fetchUsersByQuery({category, searchValue}) : await fetchUsers()
     return Response.json({res})

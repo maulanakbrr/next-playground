@@ -3,6 +3,8 @@ import { UserContext } from '@/app/user/context';
 import React, { useState, useEffect, useContext } from 'react'
 import { UserColumnInterface } from '@/app/user/page';
 import { VscEllipsis } from "react-icons/vsc";
+import Tooltip from './tooltip';
+import Link from 'next/link';
 
 type AnyArray<T = any> = T[];
 
@@ -11,6 +13,13 @@ interface TableProps {
   column: UserColumnInterface[]
 }
 
+interface ITableTooltip {
+  id: string,
+  feature: string[]
+}
+
+const tableTooltipFeature = ['edit', 'delete']
+
 const getData = async (url:string) => {
   const res = await fetch(url)
   if (!res.ok) {
@@ -18,7 +27,19 @@ const getData = async (url:string) => {
   }
 
   return res.json()
-} 
+}
+
+const ActionMore:React.FC<ITableTooltip> = ({id, feature}) => {
+  return (
+    <div className='flex flex-col'>
+      {
+        feature.map(item => (
+          <Link key={item} href={`/user/${item}/${id}`} className='mb-2 hover:cursor-pointer'>{item}</Link>
+        ))
+      }
+    </div>
+  )
+}
 
 const Table:React.FC<TableProps> = ({url, column}) => {
   const { searchData } = useContext(UserContext)
@@ -40,7 +61,7 @@ const Table:React.FC<TableProps> = ({url, column}) => {
   console.log('DATA:: ', data)
 
   return (
-    <div className="overflow-x-auto">
+    <div className="overflow-x-hidden">
       <table className="min-w-full bg-white border border-gray-300">
         <thead>
           <tr>
@@ -58,8 +79,10 @@ const Table:React.FC<TableProps> = ({url, column}) => {
                   <td key={item.name} className="py-2 px-4 border-b">{row[item.name]}</td>
                 ))
               }
-              <td className="py-2 px-4 border-b">
-                <VscEllipsis/>
+              <td className="group py-2 px-4 border-b relative">
+                <Tooltip position='top' item={<ActionMore id={row.id} feature={tableTooltipFeature}/>}>
+                  <VscEllipsis/>
+                </Tooltip>
               </td>
             </tr>
           ))}
