@@ -1,12 +1,14 @@
-import React from 'react'
+'use client'
+import { UserContext } from '@/app/user/context';
+import React, { useState, useEffect, useContext } from 'react'
+import { UserColumnInterface } from '@/app/user/page';
+import { VscEllipsis } from "react-icons/vsc";
 
 type AnyArray<T = any> = T[];
 
 interface TableProps {
   url: string,
-  isFiltered: boolean,
-  filterOption: AnyArray | undefined,
-  column: string[] 
+  column: UserColumnInterface[]
 }
 
 const getData = async (url:string) => {
@@ -18,9 +20,23 @@ const getData = async (url:string) => {
   return res.json()
 } 
 
-const Table:React.FC<TableProps> = async ({url, isFiltered, filterOption, column}) => {
-  const res = await getData(url)
-  const data = res.res
+const Table:React.FC<TableProps> = ({url, column}) => {
+  const { searchData } = useContext(UserContext)
+  const { category, searchValue } = searchData
+
+  const [data, setData] = useState<AnyArray>([])
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const urlFetch = searchData ? `${url}?category=${category}&searchValue=${searchValue}` : url
+      const res = await getData(urlFetch)
+
+      setData(res.res)
+    }
+
+    fetchData()
+  }, [category, searchValue, searchData, url])
+
   console.log('DATA:: ', data)
 
   return (
@@ -29,20 +45,22 @@ const Table:React.FC<TableProps> = async ({url, isFiltered, filterOption, column
         <thead>
           <tr>
             {column.map(head => (
-              <th className="py-2 px-4 border-b" key={head}>{head}</th>
+              <th className="py-2 px-4 border-b text-left" key={head.name}>{head.text}</th>
             ))}
+            <th className="py-2 px-4 border-b text-left">Actions</th>
           </tr>
         </thead>
         <tbody>
           {data.map((row:any) => (
             <tr key={row.id}>
               {
-                Object.keys(row).filter(item => item !== 'id').map((key) => {
-                  return (
-                    <td className="py-2 px-4 border-b" key={key}>{row[key]}</td>
-                  )
-                })
+                column.map(item => (
+                  <td key={item.name} className="py-2 px-4 border-b">{row[item.name]}</td>
+                ))
               }
+              <td className="py-2 px-4 border-b">
+                <VscEllipsis/>
+              </td>
             </tr>
           ))}
         </tbody>
